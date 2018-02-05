@@ -1,3 +1,3 @@
-# Techlog
+# Technical logs
 
-- [PIDFlight Logの評価](lapsystem/pidflight_lap.md)
+- [PIDFlight Lapの評価](lapsystem/pidflight_lap.md)
