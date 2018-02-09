@@ -11,9 +11,9 @@ VTXの電波を使用した安価なラップシステム [PIDFlight Lap](https:
 
 |品名|役割|参考価格|
 |---|---|--:|
-| [Arduino Nano互換機](https://www.amazon.co.jp/dp/B01F741W6O/) | ラップ計測 | 400円 |
+| [Arduino Nano互換機](https://www.amazon.co.jp/dp/B01F741W6O/) | 受信モジュールの制御 | 400円 |
 | [RX5808モジュール](https://www.banggood.com/ja/FPV-5_8G-Wireless-Audio-Video-Receiving-Module-RX5808-p-84775.html) | VTX信号の受信 | 1,010円 |
-| USB miniBケーブル | 計測デバイスの接続 | 110円 |
+| USB miniBケーブル | PCとデバイスとの接続 | 110円 |
 | [ブレッドボード](https://www.marutsu.co.jp/pc/i/110694/) | 回路の構成 | 420円 |
 | [カーボン抵抗1kΩ](https://www.marutsu.co.jp/GoodsDetail.jsp?q=C041K00JT&salesGoodsCode=107022) | 回路の構成 | 120円 | 
 | [ジャンパワイヤー](https://www.switch-science.com/catalog/314/) | 回路の構成 | 270円 |
@@ -33,10 +33,7 @@ ArduinoにPIDFlight Lapの公式ファームウェアを書き込みます。
 ```bash
 $ cd /Applications/Arduino.app/Contents/Java/hardware/tools/avr
 $ cp ~/Downloads/pidflightlap_2.7.0_PDFL/pidflightlap_2.7.0_PDFL.hex .
-$
-$ ./bin/avrdude -C etc/avrdude.conf -U flash:w:pidflightlap_2.7.0_PDFL.hex:i \
--e -p atmega328p -b 57600 -c arduino -P /dev/tty.wchusbserial14110
-$
+$ ./bin/avrdude -C etc/avrdude.conf -U flash:w:pidflightlap_2.7.0_PDFL.hex:i -e -p atmega328p -b 57600 -c arduino -P /dev/tty.wchusbserial14110
 $ rm pidflightlap_2.7.0_PDFL.hex
 ```
 
@@ -44,7 +41,15 @@ $ rm pidflightlap_2.7.0_PDFL.hex
 
 公式サイトの[回路図(PDF)](https://www.pidflight.com/download/303/)や[動画](https://youtu.be/JMmCdtzB3pc)を参考に、回路を製作します。今回は必要最小限の部品構成としているので、[動画で紹介されている回路図](https://youtu.be/JMmCdtzB3pc?t=21s)と同じ構成となります。
 
+下の写真は、ブレッドボード上での配置例です。
+
 ![device01](img/pfl_device_01.jpg)
+
+RX5808の下の空間も利用すれば、よりコンパクトに配置できます。
+
+![device02](img/pfl_device_02.jpg)
+
+本格的に使用する場合には、ユニバーサル基板等へ実装し、ケースに収めると良いでしょう。
 
 ## 2. 公式アプリでの動作確認
 
@@ -60,9 +65,11 @@ MacBookと計測デバイスをUSBケーブルで接続し、アプリを起動�
 
 計測デバイスとの接続に成功すると「Devices」の画面が表示されます。
 
-パイロットの名前は、この画面で設定できます。パイロット情報のデータベースの機能はなく、パイロットが入れ替わるたびに名前を手打ちする仕様のようです。
+この画面では、計測対象の周波数を設定できます。1つの物理デバイスに複数の仮想デバイスを収容して、複数の周波数を計測することが可能です。ただしその場合、計測精度は落ちます。
 
-また、同じ画面で計測対象の周波数を設定できます。1つの物理デバイスに複数の仮想デバイスを収容して、複数の周波数を計測することが可能です。ただしその場合、計測精度は落ちます。下の図の例では、3つの仮想デバイスに受信周波数 5705, 5740, 5800Mhzを設定しています。
+またこの画面では、パイロットの名前も設定できます。パイロット情報のデータベースの機能はなく、パイロットが入れ替わるたびに名前を手打ちする仕様のようです。
+
+下の図の例では、3つの仮想デバイスに受信周波数 5705, 5740, 5800Mhzを設定し、Pilot1, Pilot2, Pilot3というパイロット名を設定しています。
 
 ![app01](img/pfl_app_a02.png)
 
@@ -71,7 +78,11 @@ MacBookと計測デバイスをUSBケーブルで接続し、アプリを起動�
 
 ![app02](img/pfl_app_a03.png)
 
-RSSIのthreshold(しきい値)は、デフォルトで200となっています。この場合、RSSIが200を超えて再び200を下回るまでの区間を対象として、RSSIのピーク(=ドローンが最も近づいた)のタイミングで、ラップが記録されるものと想像できます。
+RSSIのthreshold(しきい値)は、デフォルトで200となっています。この場合、RSSIが200を超えて再び200を下回るまでの区間を対象として、RSSIのピークのタイミング(=ドローンが最も近づいたと思われるタイミング)で、ラップが記録されるようです。
+
+ファームウェア2.7.0のマニュアルでは、次のように説明されています。
+
+>  The RSSI threshold is used to determine when to start (craft is within the threshold) and stop (craft is now below the threshold) to capture the RSSI peak and time for the start/stop of a lap.
 
 ### 仮想デバイスと計測精度
 
@@ -93,30 +104,43 @@ RSSIのthreshold(しきい値)は、デフォルトで200となっています�
 
 ### 実機でのラップ計測
 
-(未実施)
+(未検証)
 
-## 3. 実運用での課題
+## 3. シリアルケーブルの延長
 
-### PCと計測デバイスとの距離
+上に挙げたような最小構成では、PCと計測デバイスをUSBケーブルで接続するため、USB規格の制限により5m以上のケーブルを使用できません。しかし、以下のような製品を使えば、30m近くまで稼げます。
 
-上に挙げたような最小構成では、PCと計測デバイスをUSBケーブルで接続するため、USB規格の制限により5m以上のケーブルを使用できません。しかし、以下のような製品を使えば、30m近くまで稼げる可能性があります(後日、動作検証を行う予定です)。
+### ブースター付きのUSB延長ケーブル
 
-- 方法1: [ブースター付き長尺USB延長ケーブル(参考価格:1,880円)](https://www.amazon.co.jp/dp/B008988WBE)
-- 方法2: [USBをLANケーブルで延長するアダプタ(参考価格:390円)](https://www.amazon.co.jp/dp/B009H0KV9O) + [長尺LANケーブル30m(参考価格: 1,100円)](https://www.amazon.co.jp/dp/B00B42H10K)
+ブースターを内蔵して長尺に対応した延長ケーブルです。下記の製品では、15mの延長が可能です。50cmのUSB miniBケーブルとの組み合わせで、問題なく動作しました。
 
-また、公式サイトにもあるように、BluetoothやWi-Fiでシリアルポートを無線化するアプローチもあります。ただし、公式サイトで紹介されているモジュールHC-06とDT-06は、電波法の都合で日本では使えません。日本で使えるものとしては、以下の製品があるようです。
+- [Simble USB 延長線 15m USB2.0 (PC-643) (参考価格:1,880円)](https://www.amazon.co.jp/dp/B008988WBE)
 
-- [RN-42使用 Bluetooth無線モジュール評価キット(参考価格:2,400円)](http://akizukidenshi.com/catalog/g/gK-07378/)
+### USBをLANケーブルで延長
 
-しかし、コスト、安定性、設定の手間を考えると、USBでの接続がお手軽に思えます。
+こちらは、延長区間をLANケーブルで補うタイプです。下記の製品では、手元の20mのLANケーブル、50cmのUSB miniBケーブルとの組み合わせで、概ね問題なく動作しました。
 
-ゲートを複数設置して、チェックポイントの通過を検知したい場合には、無線化、IP化するのが有利に思えます。しかし、そもそもPIDFlight Lapアプリにはそのような機能がないため、計測デバイスとの接続に対応したアプリを自作することになりそうです。
+一点だけ問題が見つかりました。USB使用中にLANケーブルを抜いた所、macOSが強制終了します。取り扱いには注意が必要です。
 
-PIDFlight Lapのリリースノートを見ると、TCPでの接続もサポートしているようです。しかし、マニュアルには関連する記述が見当たらず、アプリ上にも設定項目がないため、詳細は不明です。
+- [最大40m延長 USBエクステンダー USB-LAN-EXT (参考価格:390円)](https://www.amazon.co.jp/dp/B009H0KV9O)
 
-### 計測精度の改善
+LANケーブルは、以下の製品のコストパフォーマンスが良さそうです。上記のアダプタと合わせて1,500円弱で、30mの延長が可能となります。
 
-仮想デバイスに起因する計測誤差を無くすには、受信したい周波数の数だけ物理デバイスを用意する必要があります。[公式サイト](https://www.pidflight.com/pidflight-lap/multipilot/)によれば、物理デバイスを直列に繋げば良く、PCとの接続は1ポートで済むようです。
+- [エレコム LANケーブル 30m ツメが折れない CAT5e ブルー LD-CTT/BU300 (参考価格:1,091円)](https://www.amazon.co.jp/dp/B00B42H10K)
 
+### BluetoothやWi-Fiでの無線化
+
+BluetoothやWi-Fiでシリアルポートを無線化するアプローチもあります。ただし、公式サイトで紹介されているモジュールHC-06とDT-06は、電波法の都合で日本では使えません。日本で使えるものとしては、以下の製品があるようです。(動作は未検証)
+
+- [RN-42使用 Bluetooth無線モジュール評価キット (参考価格:2,400円)](http://akizukidenshi.com/catalog/g/gK-07378/)
+- [ESP-WROOM-02ピッチ変換済みモジュール《シンプル版》 (参考価格:909円)](https://www.switch-science.com/catalog/2341/)
+
+モジュール単体で見ると、後者のWi-Fiモジュールの方が安いですが、周辺回路が必要になることや設定の煩雑さを考えると、前者のBluetoothモジュールの方が有利なようです。
+
+## 4. 複数の物理デバイスの使用
+
+複数の仮想デバイスを使用する場合に起こる計測誤差は、物理デバイスを複数同時に使用することで改善できます。
+
+[公式サイト](https://www.pidflight.com/pidflight-lap/multipilot/)によれば、物理デバイスを直列に繋げば良く、PCとの接続は1箇所で済むようです。物理デバイスが1つの場合と異なり、ArduinoのUSBポートは使用せず、USBシリアル変換チップ等を介してArduinoのTx/Rxピンに接続する必要があります。(動作は未検証)
 
 以上
