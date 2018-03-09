@@ -14,7 +14,7 @@
 
 | 品名 | 役割 | 参考価格(税込) |
 | :-- | :-- | --: |
-| [ACアダプター 12V 1A](https://www.marutsu.co.jp/pc/i/743618/) | 電源の供給 | 1170円 |
+| [ACアダプター 12V 1A](https://www.marutsu.co.jp/pc/i/743618/) | 電源の供給 | 1,170円 |
 | [DCジャック付きケーブル 2.1mm](https://www.marutsu.co.jp/pc/i/594850/) | ACアダプタの接続 | 250円 |
 | [エーモン プラス・マイナス分岐ターミナル](https://www.amazon.co.jp/dp/B005LBE5AO) | 電源の分岐 | 470円 |
 | [Eachine RC832 × 3個](https://www.banggood.com/ja/Eachine-FPV-5_8G-32CH-Wireless-AV-Receiver-RC832-p-975426.html) | FPV映像の受信 | 4,800円 |
