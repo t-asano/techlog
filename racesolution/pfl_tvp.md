@@ -9,7 +9,7 @@ PIDflight LapとTiny View Plusとを連携させることが可能です。
 
 ## 連携内容
 
-- PIDflight Lapのデバイス1~3が、Tiny View Plusのカメラ1~3に対応
+- PIDflight Lapのデバイス1〜3が、Tiny View Plusのカメラ1〜3に対応
 - PIDflight Lapでパイロット名を設定すると、Tiny View Plus上にも表示される(2018.3.26時点では日本語非対応)
 - PIDflight Lapでラップタイムが計測されると、Tiny View Plus上にも表示される
 - PIDflight Lapでレースを開始すると、Tiny View Plus上のラップタイム表示がクリアされる
